@@ -18,6 +18,14 @@ class Course(models.Model):
         verbose_name="Описание курса",
         help_text="Введите описание",
     )
+    owner = models.ForeignKey(
+        "users.User",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name="Владелец курса",
+        help_text="Укажите создателя курса",
+    )
 
     class Meta:
         verbose_name = "Курс"
@@ -54,6 +62,14 @@ class Lesson(models.Model):
         help_text="Выберите курс",
         blank=True,
         null=True,
+    )
+    owner = models.ForeignKey(
+        "users.User",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name="Владелец урока",
+        help_text="Укажите создателя урока",
     )
 
     class Meta:
