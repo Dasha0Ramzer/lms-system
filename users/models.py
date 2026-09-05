@@ -86,4 +86,6 @@ class Payment(models.Model):
         verbose_name_plural = "Платежи"
 
     def __str__(self):
-        return f"{self.user.email} — {self.amount} ₽ — {self.get_payment_method_display()}"
+        return (
+            f"{self.user.email} — {self.amount} ₽ — {self.get_payment_method_display()}"
+        )
