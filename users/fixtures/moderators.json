@@ -1,0 +1,33 @@
+[
+  {
+    "model": "auth.group",
+    "pk": 2,
+    "fields": {
+      "name": "moders_test"
+    }
+  },
+  {
+    "model": "users.user",
+    "pk": 10,
+    "fields": {
+      "email": "moderator@example.com",
+      "password": "pbkdf2_sha256$1500000$XFXLNTJlvMVuokQA6kP8ZM$tb8UJj6vUSn9B36laSAUY7Xa0dDB+4NBuheh90dbScI=",
+      "is_active": true,
+      "is_staff": true,
+      "is_superuser": false,
+      "first_name": "",
+      "last_name": "",
+      "phone": "",
+      "city": "",
+      "avatar": null
+    }
+  },
+  {
+    "model": "users.user_groups",
+    "pk": 1,
+    "fields": {
+      "user": 10,
+      "group": 2
+    }
+  }
+]

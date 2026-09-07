@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from rest_framework.serializers import (CharField, ModelSerializer,
                                         SerializerMethodField)
 
@@ -35,7 +36,20 @@ class UserSerializer(ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'email', 'phone', 'city', 'avatar', 'payments']
+        fields = ['id', 'email', 'phone', 'city', 'avatar', 'password', 'payments']
+
+    def validate_email(self, value):
+        if User.objects.filter(email=value).exists():
+            raise ValidationError("Пользователь с таким email уже зарегистрирован")
+        return value
+
+    def create(self, validated_data):
+        password = validated_data.pop('password')
+        user = User(**validated_data)
+        user.is_active = True
+        user.set_password(password)
+        user.save()
+        return user
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
