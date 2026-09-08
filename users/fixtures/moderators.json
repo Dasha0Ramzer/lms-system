@@ -1,12 +1,5 @@
 [
   {
-    "model": "auth.group",
-    "pk": 2,
-    "fields": {
-      "name": "moders_test"
-    }
-  },
-  {
     "model": "users.user",
     "pk": 10,
     "fields": {
@@ -27,7 +20,9 @@
     "pk": 1,
     "fields": {
       "user": 10,
-      "group": 2
+      "group": 1
     }
   }
 ]
+
+

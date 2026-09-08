@@ -39,7 +39,10 @@ class UserSerializer(ModelSerializer):
         fields = ['id', 'email', 'phone', 'city', 'avatar', 'password', 'payments']
 
     def validate_email(self, value):
-        if User.objects.filter(email=value).exists():
+        queryset = User.objects.filter(email=value)
+        if self.instance:
+            queryset = queryset.exclude(pk=self.instance.pk)
+        if queryset.exists():
             raise ValidationError("Пользователь с таким email уже зарегистрирован")
         return value
 
@@ -50,6 +53,17 @@ class UserSerializer(ModelSerializer):
         user.set_password(password)
         user.save()
         return user
+
+    def update(self, instance, validated_data):
+        for attr, value in validated_data.items():
+            if attr != 'password':
+                setattr(instance, attr, value)
+        password = validated_data.get('password')
+        if password:
+            instance.set_password(password)
+
+        instance.save()
+        return instance
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
