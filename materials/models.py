@@ -85,7 +85,7 @@ class Subscription(models.Model):
     class Meta:
         verbose_name = "Подписка"
         verbose_name_plural = "Подписки"
-        unique_together = ('user', 'course')
+        unique_together = ("user", "course")
 
     def __str__(self):
-        return f'{self.user} -> {self.course}'
+        return f"{self.user} -> {self.course}"

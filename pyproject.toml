@@ -19,6 +19,8 @@ dependencies = [
     "djangorestframework-simplejwt (>=5.5.1,<6.0.0)",
     "ipython (>=9.17.1,<10.0.0)",
     "coverage (>=7.16.0,<8.0.0)",
+    "drf-yasg (>=1.21.15,<2.0.0)",
+    "stripe (>=15.6.1,<16.0.0)",
 ]
 
 
