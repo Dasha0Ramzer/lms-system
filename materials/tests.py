@@ -1,17 +1,10 @@
 from http.client import responses
 
-from django.urls import reverse
-from rest_framework import status
-from rest_framework.test import APITestCase
-
-from materials.models import Course, Lesson, Subscription
-from users.models import User
-
-
 from django.contrib.auth.models import Group
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
+
 from materials.models import Course, Lesson, Subscription
 from users.models import User
 
@@ -27,7 +20,9 @@ class LessonTestCase(APITestCase):
         self.moderator.groups.add(self.moders_group)
 
         self.course = Course.objects.create(title="test_title")
-        self.lesson = Lesson.objects.create(title="test_title", course=self.course, owner=self.user)
+        self.lesson = Lesson.objects.create(
+            title="test_title", course=self.course, owner=self.user
+        )
         self.client.force_authenticate(user=self.user)
 
     def test_lesson_retrieve(self):
@@ -46,7 +41,10 @@ class LessonTestCase(APITestCase):
         # --- добавлено: аноним не может ---
         self.client.force_authenticate(user=None)
         response = self.client.get(url)
-        self.assertIn(response.status_code, [status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN])
+        self.assertIn(
+            response.status_code,
+            [status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN],
+        )
 
     def test_lesson_create(self):
         url = reverse("materials:lessons_create")
@@ -69,7 +67,10 @@ class LessonTestCase(APITestCase):
         # --- добавлено: аноним не может ---
         self.client.force_authenticate(user=None)
         response = self.client.post(url, data)
-        self.assertIn(response.status_code, [status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN])
+        self.assertIn(
+            response.status_code,
+            [status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN],
+        )
 
     def test_lesson_update(self):
         url = reverse("materials:lessons_update", args=(self.lesson.pk,))
@@ -88,7 +89,10 @@ class LessonTestCase(APITestCase):
         # --- добавлено: аноним не может ---
         self.client.force_authenticate(user=None)
         response = self.client.patch(url, data)
-        self.assertIn(response.status_code, [status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN])
+        self.assertIn(
+            response.status_code,
+            [status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN],
+        )
 
     def test_lesson_delete(self):
         url = reverse("materials:lessons_delete", args=(self.lesson.pk,))
@@ -100,7 +104,9 @@ class LessonTestCase(APITestCase):
 
         # --- добавлено: модератор НЕ может (IsNotModer блокирует) ---
         # пересоздаём урок, т.к. предыдущий удалён
-        lesson2 = Lesson.objects.create(title="test2", course=self.course, owner=self.user)
+        lesson2 = Lesson.objects.create(
+            title="test2", course=self.course, owner=self.user
+        )
         url2 = reverse("materials:lessons_delete", args=(lesson2.pk,))
         self.client.force_authenticate(user=self.moderator)
         response = self.client.delete(url2)
@@ -109,7 +115,10 @@ class LessonTestCase(APITestCase):
         # --- добавлено: аноним не может ---
         self.client.force_authenticate(user=None)
         response = self.client.delete(url2)
-        self.assertIn(response.status_code, [status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN])
+        self.assertIn(
+            response.status_code,
+            [status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN],
+        )
 
     def test_lesson_list(self):
         url = reverse("materials:lessons_list")
@@ -127,9 +136,9 @@ class LessonTestCase(APITestCase):
                     "description": None,
                     "preview": None,
                     "course": self.course.pk,
-                    "owner": self.user.pk
+                    "owner": self.user.pk,
                 },
-            ]
+            ],
         }
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(data, result)
@@ -137,7 +146,10 @@ class LessonTestCase(APITestCase):
         # --- добавлено: аноним не может ---
         self.client.force_authenticate(user=None)
         response = self.client.get(url)
-        self.assertIn(response.status_code, [status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN])
+        self.assertIn(
+            response.status_code,
+            [status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN],
+        )
 
 
 class CourseTestCase(APITestCase):
@@ -151,7 +163,9 @@ class CourseTestCase(APITestCase):
         self.moderator.groups.add(self.moders_group)
 
         self.course = Course.objects.create(title="test_title", owner=self.user)
-        self.lesson = Lesson.objects.create(title="test_title", course=self.course, owner=self.user)
+        self.lesson = Lesson.objects.create(
+            title="test_title", course=self.course, owner=self.user
+        )
         self.client.force_authenticate(user=self.user)
 
     def test_course_retrieve(self):
@@ -170,7 +184,10 @@ class CourseTestCase(APITestCase):
         # --- добавлено: аноним не может ---
         self.client.force_authenticate(user=None)
         response = self.client.get(url)
-        self.assertIn(response.status_code, [status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN])
+        self.assertIn(
+            response.status_code,
+            [status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN],
+        )
 
     def test_course_create(self):
         url = reverse("materials:course-list")
@@ -189,7 +206,10 @@ class CourseTestCase(APITestCase):
         # --- добавлено: аноним не может ---
         self.client.force_authenticate(user=None)
         response = self.client.post(url, data)
-        self.assertIn(response.status_code, [status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN])
+        self.assertIn(
+            response.status_code,
+            [status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN],
+        )
 
     def test_course_update(self):
         url = reverse("materials:course-detail", args=(self.course.pk,))
@@ -208,7 +228,10 @@ class CourseTestCase(APITestCase):
         # --- добавлено: аноним не может ---
         self.client.force_authenticate(user=None)
         response = self.client.patch(url, data)
-        self.assertIn(response.status_code, [status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN])
+        self.assertIn(
+            response.status_code,
+            [status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN],
+        )
 
     def test_course_delete(self):
         url = reverse("materials:course-detail", args=(self.course.pk,))
@@ -228,7 +251,10 @@ class CourseTestCase(APITestCase):
         # --- добавлено: аноним не может ---
         self.client.force_authenticate(user=None)
         response = self.client.delete(url2)
-        self.assertIn(response.status_code, [status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN])
+        self.assertIn(
+            response.status_code,
+            [status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN],
+        )
 
     def test_course_list(self):
         url = reverse("materials:course-list")
@@ -246,9 +272,9 @@ class CourseTestCase(APITestCase):
                     "title": self.course.title,
                     "preview": None,
                     "description": None,
-                    "owner": self.user.pk
+                    "owner": self.user.pk,
                 }
-            ]
+            ],
         }
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(data, result)
@@ -256,7 +282,10 @@ class CourseTestCase(APITestCase):
         # --- добавлено: аноним не может ---
         self.client.force_authenticate(user=None)
         response = self.client.get(url)
-        self.assertIn(response.status_code, [status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN])
+        self.assertIn(
+            response.status_code,
+            [status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN],
+        )
 
     def test_subscription_create(self):
         url = reverse("materials:subscription")
@@ -264,12 +293,17 @@ class CourseTestCase(APITestCase):
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.json()["message"], "подписка добавлена")
-        self.assertTrue(Subscription.objects.filter(user=self.user, course=self.course).exists())
+        self.assertTrue(
+            Subscription.objects.filter(user=self.user, course=self.course).exists()
+        )
 
         # --- добавлено: аноним не может ---
         self.client.force_authenticate(user=None)
         response = self.client.post(url, data)
-        self.assertIn(response.status_code, [status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN])
+        self.assertIn(
+            response.status_code,
+            [status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN],
+        )
 
     def test_subscription_delete(self):
         Subscription.objects.create(user=self.user, course=self.course)
@@ -278,7 +312,9 @@ class CourseTestCase(APITestCase):
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.json()["message"], "подписка удалена")
-        self.assertFalse(Subscription.objects.filter(user=self.user, course=self.course).exists())
+        self.assertFalse(
+            Subscription.objects.filter(user=self.user, course=self.course).exists()
+        )
 
     def test_course_list_with_subscription(self):
         Subscription.objects.create(user=self.user, course=self.course)

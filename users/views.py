@@ -1,5 +1,6 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
+from rest_framework.exceptions import ValidationError
 from rest_framework.generics import (CreateAPIView, DestroyAPIView,
                                      ListAPIView, RetrieveAPIView,
                                      UpdateAPIView)
@@ -9,6 +10,8 @@ from rest_framework.viewsets import ModelViewSet
 from users.models import Payment, User
 from users.permissions import IsOwnerOrReadOnly
 from users.serializers import PaymentSerializer, UserSerializer
+from users.services import (COURSE_PRICE, LESSON_PRICE, create_stripe_price,
+                            create_stripe_product, create_stripe_sessions)
 
 
 class UserViewSet(ModelViewSet):
@@ -28,7 +31,39 @@ class PaymentCreateApiView(CreateAPIView):
     serializer_class = PaymentSerializer
 
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+        paid_course = serializer.validated_data.get("paid_course")
+        paid_lesson = serializer.validated_data.get("paid_lesson")
+
+        if paid_course:
+            product_name = paid_course.title
+            amount = COURSE_PRICE
+        elif paid_lesson:
+            product_name = paid_lesson.title
+            amount = LESSON_PRICE
+        else:
+            raise ValidationError("Укажите курс или урок для оплаты.")
+
+        # 1. Создаём продукт в Stripe
+        stripe_product = create_stripe_product(product_name)
+
+        # 2. Создаём цену
+        price = create_stripe_price(
+            {
+                "id": stripe_product.id,
+                "amount": amount,
+            }
+        )
+
+        # 3. Создаём сессию
+        session_id, session_url = create_stripe_sessions(price)
+
+        # 4. Сохраняем платёж
+        serializer.save(
+            user=self.request.user,
+            amount=amount,
+            session_id=session_id,
+            link=session_url,
+        )
 
 
 class PaymentListApiView(ListAPIView):
