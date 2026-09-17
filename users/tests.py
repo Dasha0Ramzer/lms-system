@@ -6,6 +6,7 @@ from rest_framework.test import APITestCase
 
 from materials.models import Course, Lesson
 from users.models import Payment, User
+from users.services import COURSE_PRICE
 
 
 class UserTestCase(APITestCase):
@@ -132,19 +133,20 @@ class PaymentTestCase(APITestCase):
         )
         self.client.force_authenticate(user=self.user)
 
+
     def test_payment_create(self):
         url = reverse("users:payments_create")
         data = {
             "paid_course": self.course.pk,
             "payment_method": "transfer",
-            "amount": "2000.00",
         }
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         new_payment = Payment.objects.last()
         self.assertEqual(new_payment.user, self.user)
-        self.assertEqual(str(new_payment.amount), "2000")
+        self.assertEqual(new_payment.amount, COURSE_PRICE)
+
 
     def test_payment_list(self):
         url = reverse("users:payments_list")
