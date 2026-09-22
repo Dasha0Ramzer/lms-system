@@ -1,6 +1,6 @@
 from django.core.exceptions import ValidationError
-from rest_framework.serializers import (CharField, ModelSerializer,
-                                        SerializerMethodField)
+from rest_framework.serializers import (CharField, IntegerField,
+                                        ModelSerializer, SerializerMethodField)
 
 from users.models import Payment, User
 
@@ -36,7 +36,7 @@ class UserSerializer(ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'email', 'phone', 'city', 'avatar', 'password', 'payments']
+        fields = ["id", "email", "phone", "city", "avatar", "password", "payments"]
 
     def validate_email(self, value):
         queryset = User.objects.filter(email=value)
@@ -47,7 +47,7 @@ class UserSerializer(ModelSerializer):
         return value
 
     def create(self, validated_data):
-        password = validated_data.pop('password')
+        password = validated_data.pop("password")
         user = User(**validated_data)
         user.is_active = True
         user.set_password(password)
@@ -56,9 +56,9 @@ class UserSerializer(ModelSerializer):
 
     def update(self, instance, validated_data):
         for attr, value in validated_data.items():
-            if attr != 'password':
+            if attr != "password":
                 setattr(instance, attr, value)
-        password = validated_data.get('password')
+        password = validated_data.get("password")
         if password:
             instance.set_password(password)
 
@@ -67,9 +67,9 @@ class UserSerializer(ModelSerializer):
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
-        request = self.context.get('request')
+        request = self.context.get("request")
         if not request or request.user != instance:
-            representation.pop('payments', None)
+            representation.pop("payments", None)
         return representation
 
 
@@ -78,3 +78,6 @@ class PaymentSerializer(ModelSerializer):
         model = Payment
         fields = "__all__"
         read_only_fields = ["user"]
+        extra_kwargs = {
+            "amount": {"required": False},
+        }

@@ -3,8 +3,10 @@ from decimal import Decimal
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
-from users.models import User, Payment
+
 from materials.models import Course, Lesson
+from users.models import Payment, User
+from users.services import COURSE_PRICE
 
 
 class UserTestCase(APITestCase):
@@ -27,7 +29,10 @@ class UserTestCase(APITestCase):
         self.client.force_authenticate(user=None)
         url = reverse("users:user-list")
         response = self.client.get(url)
-        self.assertIn(response.status_code, [status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN])
+        self.assertIn(
+            response.status_code,
+            [status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN],
+        )
 
     def test_user_retrieve_owner(self):
         url = reverse("users:user-detail", args=(self.user.pk,))
@@ -44,7 +49,10 @@ class UserTestCase(APITestCase):
         self.client.force_authenticate(user=None)
         url = reverse("users:user-detail", args=(self.user.pk,))
         response = self.client.get(url)
-        self.assertIn(response.status_code, [status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN])
+        self.assertIn(
+            response.status_code,
+            [status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN],
+        )
 
     def test_user_update_owner(self):
         url = reverse("users:user-detail", args=(self.user.pk,))
@@ -113,7 +121,9 @@ class PaymentTestCase(APITestCase):
         self.user.set_password("testpass123")
         self.user.save()
         self.course = Course.objects.create(title="test_course", owner=self.user)
-        self.lesson = Lesson.objects.create(title="test_lesson", course=self.course, owner=self.user)
+        self.lesson = Lesson.objects.create(
+            title="test_lesson", course=self.course, owner=self.user
+        )
 
         self.payment = Payment.objects.create(
             user=self.user,
@@ -123,19 +133,20 @@ class PaymentTestCase(APITestCase):
         )
         self.client.force_authenticate(user=self.user)
 
+
     def test_payment_create(self):
         url = reverse("users:payments_create")
         data = {
             "paid_course": self.course.pk,
             "payment_method": "transfer",
-            "amount": "2000.00",
         }
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         new_payment = Payment.objects.last()
         self.assertEqual(new_payment.user, self.user)
-        self.assertEqual(str(new_payment.amount), "2000.00")
+        self.assertEqual(new_payment.amount, COURSE_PRICE)
+
 
     def test_payment_list(self):
         url = reverse("users:payments_list")
@@ -172,14 +183,17 @@ class PaymentTestCase(APITestCase):
         self.client.force_authenticate(user=None)
         url = reverse("users:payments_retrieve", args=(self.payment.pk,))
         response = self.client.get(url)
-        self.assertIn(response.status_code, [status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN])
+        self.assertIn(
+            response.status_code,
+            [status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN],
+        )
 
     def test_payment_update(self):
         url = reverse("users:payments_update", args=(self.payment.pk,))
         data = {"amount": 5000}
         response = self.client.patch(url, data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.json().get("amount"), "5000.00")
+        self.assertEqual(response.json().get("amount"), 5000)
 
     def test_payment_delete(self):
         url = reverse("users:payments_delete", args=(self.payment.pk,))
@@ -191,5 +205,7 @@ class PaymentTestCase(APITestCase):
         self.client.force_authenticate(user=None)
         url = reverse("users:payments_delete", args=(self.payment.pk,))
         response = self.client.delete(url)
-        self.assertIn(response.status_code, [status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN])
-
+        self.assertIn(
+            response.status_code,
+            [status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN],
+        )

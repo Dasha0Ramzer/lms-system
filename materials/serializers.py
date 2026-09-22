@@ -6,10 +6,9 @@ from materials.validators import validate_video_url
 
 class LessonSerializer(serializers.ModelSerializer):
     video_url = serializers.CharField(
-        validators=[validate_video_url],
-        required=False,
-        allow_blank=True
+        validators=[validate_video_url], required=False, allow_blank=True
     )
+
     class Meta:
         model = Lesson
         fields = "__all__"
@@ -25,7 +24,7 @@ class CourseSerializer(serializers.ModelSerializer):
         return obj.lesson_set.count()
 
     def get_is_subscribed(self, obj):
-        user = self.context['request'].user
+        user = self.context["request"].user
         if not user.is_authenticated:
             return False
         return Subscription.objects.filter(user=user, course=obj).exists()
